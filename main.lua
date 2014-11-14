@@ -21,10 +21,12 @@ actives = {}
 saveActives = {}
 hay = {}
 newObjectsPointer = 1
+lastSelected = 0
 
 local function moveObject( event )
 	local t = event.target
 	local name = event.target.name
+	lastSelected = name
 	if actives[name] ~= 0 then
 		-- Print info about the event. For actual production code, you should
 		-- not call this function because it wastes CPU resources.
@@ -90,6 +92,8 @@ local function rotateObject (event)
 	local t = event.target
 	
 	t:rotate(-45)
+	
+	lastSelected = event.target.name
 end
 
 --Function that creates a new Object when you click on it
@@ -190,6 +194,23 @@ function deleteObjects (event)
 	end
 end
 
+function eraseObject (event)
+	event.target.alpha = 1
+	
+	if (event.phase == "ended") then
+		if lastSelected ~= 0 then
+			actives[lastSelected] = 0
+			newObjects[lastSelected].alpha = 0
+			saveActives[lastSelected] = 0
+			hay[lastSelected] = false
+		end
+	end
+	
+	if (event.phase == "began") then
+		event.target.alpha = 0.5
+	end
+end
+
 
 --Function that displays the objects in the bottom
 function startGame()
@@ -228,6 +249,11 @@ function startGame()
 	trashButton.x = leftX + trashButton.width/2
 	trashButton.y = bottomY - trashButton.height/2 * 4
 	trashButton:addEventListener("touch", deleteObjects)
+	
+	eraser = display.newImageRect("eraser.png",60,60)
+	eraser.x = leftX + eraser.width/2
+	eraser.y = bottomY - eraser.height/2 * 8
+	eraser:addEventListener("touch", eraseObject)
 	
 end
 
