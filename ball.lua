@@ -77,7 +77,7 @@ function ball:move()
 	end
 end
 
-function ball:checkColision(objects,player,actives,hay)
+function ball:checkColision(objects,player,actives,hay,paper)
 	if self.stop == false then
 		if inside(self.ball,player) then
 			self.lastObject = 0
@@ -111,7 +111,7 @@ function ball:checkColision(objects,player,actives,hay)
 			end
 		end
 		
-		if self.ball.x - self.ball.width/2 < leftX then
+		if self.ball.x - self.ball.width/2 < paper.x - paper.width/2 then
 			self.lastObject = -1
 			self:changeSpeedX()
 			if self.direction == 2 then
@@ -119,7 +119,7 @@ function ball:checkColision(objects,player,actives,hay)
 			elseif self.direction == 3 then
 				self.direction = 4
 			end
-		elseif self.ball.x + self.ball.width/2 > rightX then
+		elseif self.ball.x + self.ball.width/2 > paper.x + paper.width/2 then
 			self.lastObject = -1
 			self:changeSpeedX()
 			if self.direction == 1 then
@@ -129,7 +129,7 @@ function ball:checkColision(objects,player,actives,hay)
 			end
 		end
 		
-		if self.ball.y - self.ball.height/2 < topY then
+		if self.ball.y - self.ball.height/2 < paper.y - paper.height/2 then
 			self.lastObject = -1
 			self:changeSpeedX()
 			if self.direction == 1 then
@@ -137,16 +137,19 @@ function ball:checkColision(objects,player,actives,hay)
 			elseif self.direction == 2 then
 				self.direction = 3
 			end
-		elseif self.ball.y + self.ball.height/2 > bottomY then
+		elseif self.ball.y + self.ball.height/2 > paper.y + paper.height/2 then
 			self.ball.x = screenW/2 + leftX
 			self.ball.y = bottomY - screenH/3
+			self.lastObject = -1
 			local dir = math.random(1,2)
 			self.direction = dir
 			self:stopBall()
 			player.x = screenW/2 + leftX
 			player.y = bottomY - screenH/4
+			return true
 		end
 	end
+	return false
 end
 
 function ball:changeSpeedX()

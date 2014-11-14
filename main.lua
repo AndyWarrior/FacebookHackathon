@@ -18,6 +18,7 @@ local screenH = bottomY - topY --Numerical value for the height of the screen
 objects = {}
 newObjects = {}
 actives = {}
+saveActives = {}
 hay = {}
 newObjectsPointer = 1
 
@@ -51,8 +52,18 @@ local function moveObject( event )
 				-- Make object move (we subtract t.x0,t.y0 so that moves are
 				-- relative to initial grab point, rather than object "snapping").
 				t.x = event.x - t.x0
+				if t.x - event.target.width/2 < paper.x - paper.width/2 then
+					t.x = paper.x - paper.width/2 + event.target.width/2
+				elseif t.x + event.target.width/2 > paper.x + paper.width/2 then
+					t.x = paper.x + paper.width/2 - event.target.width/2
+				end
 				if(name ~= "player") then
 					t.y = event.y - t.y0
+					if t.y - event.target.height/2 < paper.y - paper.height/2 then
+						t.y = paper.y - paper.height/2 + event.target.height/2
+					elseif t.y + event.target.height/2 > paper.y + paper.height/2 then
+						t.y = paper.y + paper.height/2 - event.target.height/2
+					end
 				end
 			elseif "ended" == phase or "cancelled" == phase then
 				display.getCurrentStage():setFocus( nil )
@@ -64,6 +75,15 @@ local function moveObject( event )
 	-- Important to return true. This tells the system that the event
 	-- should not be propagated to listeners of any objects underneath.
 	return true
+end
+
+local function checkPlayerColision()
+	if player.x - player.width/2 < paper.x - paper.width/2 then
+		player.x = paper.x - paper.width/2 + player.width/2
+	elseif player.x + player.width/2 > paper.x + paper.width/2 then
+		player.x = paper.x + paper.width/2 - player.width/2
+	end
+	
 end
 
 local function rotateObject (event)
@@ -85,6 +105,7 @@ function createObject(event)
 			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
 			newObjects[newObjectsPointer]:addEventListener("tap", rotateObject)
 			actives[newObjectsPointer] = 1
+			saveActives[newObjectsPointer] = 1
 			hay[newObjectsPointer] = true
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object2") then
@@ -95,6 +116,7 @@ function createObject(event)
 			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
 			newObjects[newObjectsPointer]:addEventListener("tap", rotateObject)
 			actives[newObjectsPointer] = 1
+			saveActives[newObjectsPointer] = 1
 			hay[newObjectsPointer] = false
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object3") then
@@ -105,6 +127,7 @@ function createObject(event)
 			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
 			newObjects[newObjectsPointer]:addEventListener("tap", rotateObject)
 			actives[newObjectsPointer] = 3
+			saveActives[newObjectsPointer] = 3
 			hay[newObjectsPointer] = false
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object4") then
@@ -115,6 +138,7 @@ function createObject(event)
 			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
 			newObjects[newObjectsPointer]:addEventListener("tap", rotateObject)
 			actives[newObjectsPointer] = 999
+			saveActives[newObjectsPointer] = 999
 			hay[newObjectsPointer] = false
 			newObjectsPointer = newObjectsPointer + 1
 		end
@@ -145,6 +169,14 @@ end
 
 --Function that displays the objects in the bottom
 function startGame()
+	background = display.newImageRect("background.png",screenW,screenH)
+	background.x = screenW/2 + leftX
+	background.y = screenH/2 + topY
+	
+	paper = display.newImageRect("paper.png",395,255)
+	paper.x = 55 + leftX + paper.width/2
+	paper.y = 30 + topY + paper.height/2
+	
 	for i=1, 4 do
 		
 		objects[i] = display.newImageRect("object"..i..".png", 35, 20)
@@ -170,9 +202,21 @@ function startGame()
 	
 end
 
+function endGame()
+	for i=1, #actives do
+		actives[i] = saveActives[i]
+		newObjects[i].alpha = 1
+	end
+end
+
 function updateGame(event)
 	ball:move()
-	ball:checkColision(newObjects,player,actives,hay)
+	checkPlayerColision()
+	local endgame = ball:checkColision(newObjects,player,actives,hay,paper)
+	
+	if endgame == true then
+		endGame()
+	end
 	
 
 end
