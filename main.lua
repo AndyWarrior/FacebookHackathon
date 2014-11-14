@@ -166,6 +166,30 @@ function pauseGame(event)
 	end
 end
 
+function deleteObjects (event)
+	event.target.alpha = 1
+	
+	if (event.phase == "ended") then
+		for i=1, #newObjects do
+			newObjects[i]:removeEventListener("touch", moveObject)
+			newObjects[i]:removeSelf()
+			newObjects[i] = nil
+			
+			actives[i] = 0
+			
+			saveActives[i] = 0
+			
+			hay[i]=false
+			
+			newObjectsPointer = 1
+		end
+	end
+	
+	if (event.phase == "began") then
+		event.target.alpha = 0.5
+	end
+end
+
 
 --Function that displays the objects in the bottom
 function startGame()
@@ -180,8 +204,8 @@ function startGame()
 	for i=1, 4 do
 		
 		objects[i] = display.newImageRect("object"..i..".png", 35, 20)
-		objects[i].x = leftX + (screenW/6 * i) + objects[i].width/2
-		objects[i].y = bottomY - objects[i].height
+		objects[i].x = leftX + (screenW/5 * i) + objects[i].width/2
+		objects[i].y = bottomY - objects[i].height * 1.7
 		objects[i].name = "object"..i
 		objects[i]:addEventListener("touch", createObject)
 	end
@@ -200,10 +224,15 @@ function startGame()
 	playButton.y = bottomY - playButton.height/2
 	playButton:addEventListener("touch", pauseGame)
 	
+	trashButton = display.newImageRect("trash.png",60,60)
+	trashButton.x = leftX + trashButton.width/2
+	trashButton.y = bottomY - trashButton.height/2 * 4
+	trashButton:addEventListener("touch", deleteObjects)
+	
 end
 
 function endGame()
-	for i=1, #actives do
+	for i=1, #newObjects do
 		actives[i] = saveActives[i]
 		newObjects[i].alpha = 1
 	end
