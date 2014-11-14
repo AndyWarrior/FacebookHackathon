@@ -14,6 +14,45 @@ objects = {}
 newObjects = {}
 newObjectsPointer = 1
 
+local function moveObject( event )
+	local t = event.target
+
+	-- Print info about the event. For actual production code, you should
+	-- not call this function because it wastes CPU resources.
+
+	local phase = event.phase
+	if "began" == phase then
+		-- Make target the top-most object
+		local parent = t.parent
+		parent:insert( t )
+		display.getCurrentStage():setFocus( t )
+
+		-- Spurious events can be sent to the target, e.g. the user presses 
+		-- elsewhere on the screen and then moves the finger over the target.
+		-- To prevent this, we add this flag. Only when it's true will "move"
+		-- events be sent to the target.
+		t.isFocus = true
+
+		-- Store initial position
+		t.x0 = event.x - t.x
+		t.y0 = event.y - t.y
+	elseif t.isFocus then
+		if "moved" == phase then
+			-- Make object move (we subtract t.x0,t.y0 so that moves are
+			-- relative to initial grab point, rather than object "snapping").
+			t.x = event.x - t.x0
+			t.y = event.y - t.y0
+		elseif "ended" == phase or "cancelled" == phase then
+			display.getCurrentStage():setFocus( nil )
+			t.isFocus = false
+		end
+	end
+
+	-- Important to return true. This tells the system that the event
+	-- should not be propagated to listeners of any objects underneath.
+	return true
+end
+
 --Function that creates a new Object when you click on it
 function createObject(event)
 	event.target.alpha = 1
@@ -23,25 +62,26 @@ function createObject(event)
 			newObjects[newObjectsPointer] = display.newImageRect("object1.png", 30, 30)
 			newObjects[newObjectsPointer].x = screenW/2 + leftX
 			newObjects[newObjectsPointer].y = screenH/2 + topY
-			newObjects[newObjectsPointer].name = "newObject"..1
+			newObjects[newObjectsPointer].name = newObjectsPointer
+			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object2") then
 			newObjects[newObjectsPointer] = display.newImageRect("object2.png", 30, 30)
 			newObjects[newObjectsPointer].x = screenW/2 + leftX
 			newObjects[newObjectsPointer].y = screenH/2 + topY
-			newObjects[newObjectsPointer].name = "newObject"..2
+			newObjects[newObjectsPointer].name = newObjectsPointer
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object3") then
 			newObjects[newObjectsPointer] = display.newImageRect("object3.png", 30, 30)
 			newObjects[newObjectsPointer].x = screenW/2 + leftX
 			newObjects[newObjectsPointer].y = screenH/2 + topY
-			newObjects[newObjectsPointer].name = "newObject"..3
+			newObjects[newObjectsPointer].name = newObjectsPointer
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object4") then
 			newObjects[newObjectsPointer] = display.newImageRect("object4.png", 30, 30)
 			newObjects[newObjectsPointer].x = screenW/2 + leftX
 			newObjects[newObjectsPointer].y = screenH/2 + topY
-			newObjects[newObjectsPointer].name = "newObject"..4
+			newObjects[newObjectsPointer].name = newObjectsPointer
 			newObjectsPointer = newObjectsPointer + 1
 		end
 	end
