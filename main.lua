@@ -180,6 +180,14 @@ function createObject(event)
 			newPowerups[newPowerupsPointer]:addEventListener("touch", moveObject)
 			powerupType[newPowerupsPointer] = 4
 			newPowerupsPointer = newPowerupsPointer + 1
+		elseif (targetName == "powerup5") then
+			newPowerups[newPowerupsPointer] = display.newImageRect("powerup5.png", 35, 20)
+			newPowerups[newPowerupsPointer].x = screenW/2 + leftX
+			newPowerups[newPowerupsPointer].y = screenH/2 + topY
+			newPowerups[newPowerupsPointer].name = newPowerupsPointer
+			newPowerups[newPowerupsPointer]:addEventListener("touch", moveObject)
+			powerupType[newPowerupsPointer] = 5
+			newPowerupsPointer = newPowerupsPointer + 1
 		end
 	end
 	
@@ -273,10 +281,10 @@ function startGame()
 		objects[i]:addEventListener("touch", createObject)
 	end
 	
-	for i=1, 4 do
+	for i=1, 5 do
 		
 		powerups[i] = display.newImageRect("powerup"..i..".png", 35, 20)
-		powerups[i].x = leftX + (screenW/5 * i) + powerups[i].width/2
+		powerups[i].x = leftX + (screenW/6 * i) + powerups[i].width/2
 		powerups[i].y = bottomY - powerups[i].height/2
 		powerups[i].name = "powerup"..i
 		powerups[i]:addEventListener("touch", createObject)
@@ -311,7 +319,9 @@ end
 function endGame()
 	for i=1, #newObjects do
 		actives[i] = saveActives[i]
-		newObjects[i].alpha = 1
+		if actives[i] > 0 then
+			newObjects[i].alpha = 1
+		end
 	end
 end
 

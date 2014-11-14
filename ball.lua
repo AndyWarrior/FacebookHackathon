@@ -27,7 +27,8 @@ function ball.new()	-- constructor
 		lastObject = -2,
 		saveX = 0,
 		saveY = 0,
-		stop = false
+		stop = false,
+		big = false
 		}
 		newBall.ball.x = screenW/2 + leftX
 		newBall.ball.y = bottomY - screenH/3
@@ -129,6 +130,11 @@ function ball:checkColision(objects,player,actives,hay,paper,powerups,powerupTyp
 					self.speedY = 4
 					self.speedX = 0
 					self.direction = 4
+				elseif powerupType[i] == 5 then
+					self.ball:scale(2,2)
+					powerupType[i] = 0
+					powerups[i].alpha = 0
+					big = true
 				end
 			end
 		end
@@ -168,6 +174,10 @@ function ball:checkColision(objects,player,actives,hay,paper,powerups,powerupTyp
 			self:stopBall()
 			player.x = screenW/2 + leftX
 			player.y = bottomY - screenH/4
+			if big == true then
+				self.ball:scale(0.5,0.5)
+				big = false
+			end
 			return true
 		end
 	end
