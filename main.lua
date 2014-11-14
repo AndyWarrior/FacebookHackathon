@@ -1,3 +1,6 @@
+display.setStatusBar( display.HiddenStatusBar ) --Hide status bar from the beginning
+system.setIdleTimer( false ) -- turn off device sleeping
+
 -----------------------------------
 --Coordinate values for positioning
 -----------------------------------
@@ -15,6 +18,7 @@ local screenH = bottomY - topY --Numerical value for the height of the screen
 objects = {}
 newObjects = {}
 actives = {}
+hay = {}
 newObjectsPointer = 1
 
 local function moveObject( event )
@@ -62,42 +66,56 @@ local function moveObject( event )
 	return true
 end
 
+local function rotateObject (event)
+	local t = event.target
+	
+	t:rotate(-45)
+end
+
 --Function that creates a new Object when you click on it
 function createObject(event)
 	event.target.alpha = 1
 	local targetName = event.target.name
 	if (event.phase == "ended") then
 		if(targetName == "object1") then
-			newObjects[newObjectsPointer] = display.newImageRect("object1.png", 30, 30)
+			newObjects[newObjectsPointer] = display.newImageRect("object1.png", 35, 20)
 			newObjects[newObjectsPointer].x = screenW/2 + leftX
 			newObjects[newObjectsPointer].y = screenH/2 + topY
 			newObjects[newObjectsPointer].name = newObjectsPointer
 			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
+			newObjects[newObjectsPointer]:addEventListener("tap", rotateObject)
 			actives[newObjectsPointer] = 1
+			hay[newObjectsPointer] = true
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object2") then
-			newObjects[newObjectsPointer] = display.newImageRect("object2.png", 30, 30)
+			newObjects[newObjectsPointer] = display.newImageRect("object2.png", 35, 20)
 			newObjects[newObjectsPointer].x = screenW/2 + leftX
 			newObjects[newObjectsPointer].y = screenH/2 + topY
 			newObjects[newObjectsPointer].name = newObjectsPointer
 			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
-			actives[newObjectsPointer] = 2
+			newObjects[newObjectsPointer]:addEventListener("tap", rotateObject)
+			actives[newObjectsPointer] = 1
+			hay[newObjectsPointer] = false
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object3") then
-			newObjects[newObjectsPointer] = display.newImageRect("object3.png", 30, 30)
+			newObjects[newObjectsPointer] = display.newImageRect("object3.png", 35, 20)
 			newObjects[newObjectsPointer].x = screenW/2 + leftX
 			newObjects[newObjectsPointer].y = screenH/2 + topY
 			newObjects[newObjectsPointer].name = newObjectsPointer
 			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
+			newObjects[newObjectsPointer]:addEventListener("tap", rotateObject)
 			actives[newObjectsPointer] = 3
+			hay[newObjectsPointer] = false
 			newObjectsPointer = newObjectsPointer + 1
 		elseif (targetName == "object4") then
-			newObjects[newObjectsPointer] = display.newImageRect("object4.png", 30, 30)
+			newObjects[newObjectsPointer] = display.newImageRect("object4.png", 35, 20)
 			newObjects[newObjectsPointer].x = screenW/2 + leftX
 			newObjects[newObjectsPointer].y = screenH/2 + topY
 			newObjects[newObjectsPointer].name = newObjectsPointer
 			newObjects[newObjectsPointer]:addEventListener("touch", moveObject)
+			newObjects[newObjectsPointer]:addEventListener("tap", rotateObject)
 			actives[newObjectsPointer] = 999
+			hay[newObjectsPointer] = false
 			newObjectsPointer = newObjectsPointer + 1
 		end
 	end
@@ -109,12 +127,27 @@ function createObject(event)
 	
 end
 
+function pauseGame(event)
+	event.target.alpha = 1
+	
+	if (event.phase == "ended") then
+		if ball:getStatus() == false then
+			ball:stopBall()
+		else ball:resume()
+		end
+	end
+	
+	if (event.phase == "began") then
+		event.target.alpha = 0.5
+	end
+end
+
 
 --Function that displays the objects in the bottom
 function startGame()
 	for i=1, 4 do
 		
-		objects[i] = display.newImageRect("object"..i..".png", 30, 30)
+		objects[i] = display.newImageRect("object"..i..".png", 35, 20)
 		objects[i].x = leftX + (screenW/6 * i) + objects[i].width/2
 		objects[i].y = bottomY - objects[i].height
 		objects[i].name = "object"..i
@@ -128,16 +161,21 @@ function startGame()
 	player:addEventListener("touch", moveObject)
 	
 	ball = Ball.new()
+	ball:stopBall()
+	
+	playButton = display.newImageRect("playButton.png",60,60)
+	playButton.x = leftX + playButton.width/2
+	playButton.y = bottomY - playButton.height/2
+	playButton:addEventListener("touch", pauseGame)
 	
 end
 
 function updateGame(event)
 	ball:move()
-	ball:checkColision(newObjects,player,actives)
+	ball:checkColision(newObjects,player,actives,hay)
 	
 
 end
 
 startGame()
 Runtime:addEventListener( "enterFrame", updateGame )
-
