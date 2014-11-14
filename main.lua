@@ -14,13 +14,16 @@ local leftX = display.screenOriginX --Numerical value for the left of the screen
 local screenW = rightX - leftX --Numerical value for the width of the screen
 local screenH = bottomY - topY --Numerical value for the height of the screen
 
-
+powerups = {}
+newPowerups = {}
+powerupType ={}
 objects = {}
 newObjects = {}
 actives = {}
 saveActives = {}
 hay = {}
 newObjectsPointer = 1
+newPowerupsPointer = 1
 lastSelected = 0
 
 local function moveObject( event )
@@ -145,6 +148,38 @@ function createObject(event)
 			saveActives[newObjectsPointer] = 999
 			hay[newObjectsPointer] = false
 			newObjectsPointer = newObjectsPointer + 1
+		elseif (targetName == "powerup1") then
+			newPowerups[newPowerupsPointer] = display.newImageRect("powerup1.png", 35, 20)
+			newPowerups[newPowerupsPointer].x = screenW/2 + leftX
+			newPowerups[newPowerupsPointer].y = screenH/2 + topY
+			newPowerups[newPowerupsPointer].name = newPowerupsPointer
+			newPowerups[newPowerupsPointer]:addEventListener("touch", moveObject)
+			powerupType[newPowerupsPointer] = 1
+			newPowerupsPointer = newPowerupsPointer + 1
+		elseif (targetName == "powerup2") then
+			newPowerups[newPowerupsPointer] = display.newImageRect("powerup2.png", 35, 20)
+			newPowerups[newPowerupsPointer].x = screenW/2 + leftX
+			newPowerups[newPowerupsPointer].y = screenH/2 + topY
+			newPowerups[newPowerupsPointer].name = newPowerupsPointer
+			newPowerups[newPowerupsPointer]:addEventListener("touch", moveObject)
+			powerupType[newPowerupsPointer] = 2
+			newPowerupsPointer = newPowerupsPointer + 1
+		elseif (targetName == "powerup3") then
+			newPowerups[newPowerupsPointer] = display.newImageRect("powerup3.png", 35, 20)
+			newPowerups[newPowerupsPointer].x = screenW/2 + leftX
+			newPowerups[newPowerupsPointer].y = screenH/2 + topY
+			newPowerups[newPowerupsPointer].name = newPowerupsPointer
+			newPowerups[newPowerupsPointer]:addEventListener("touch", moveObject)
+			powerupType[newPowerupsPointer] = 3
+			newPowerupsPointer = newPowerupsPointer + 1
+		elseif (targetName == "powerup4") then
+			newPowerups[newPowerupsPointer] = display.newImageRect("powerup4.png", 35, 20)
+			newPowerups[newPowerupsPointer].x = screenW/2 + leftX
+			newPowerups[newPowerupsPointer].y = screenH/2 + topY
+			newPowerups[newPowerupsPointer].name = newPowerupsPointer
+			newPowerups[newPowerupsPointer]:addEventListener("touch", moveObject)
+			powerupType[newPowerupsPointer] = 4
+			newPowerupsPointer = newPowerupsPointer + 1
 		end
 	end
 	
@@ -186,6 +221,13 @@ function deleteObjects (event)
 			hay[i]=false
 			
 			newObjectsPointer = 1
+		end
+		
+		for i=1, #newPowerups do
+			newPowerups[i]:removeEventListener("touch", moveObject)
+			newPowerups[i]:removeSelf()
+			newPowerups[i] = nil
+			newPowerupsPointer = 1
 		end
 	end
 	
@@ -231,6 +273,15 @@ function startGame()
 		objects[i]:addEventListener("touch", createObject)
 	end
 	
+	for i=1, 4 do
+		
+		powerups[i] = display.newImageRect("powerup"..i..".png", 35, 20)
+		powerups[i].x = leftX + (screenW/5 * i) + powerups[i].width/2
+		powerups[i].y = bottomY - powerups[i].height/2
+		powerups[i].name = "powerup"..i
+		powerups[i]:addEventListener("touch", createObject)
+	end
+	
 	player = display.newImageRect("player.png", 80, 20)
 	player.x = screenW/2 + leftX
 	player.y = bottomY - screenH/4
@@ -267,7 +318,7 @@ end
 function updateGame(event)
 	ball:move()
 	checkPlayerColision()
-	local endgame = ball:checkColision(newObjects,player,actives,hay,paper)
+	local endgame = ball:checkColision(newObjects,player,actives,hay,paper,newPowerups,powerupType)
 	
 	if endgame == true then
 		endGame()

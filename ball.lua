@@ -77,7 +77,7 @@ function ball:move()
 	end
 end
 
-function ball:checkColision(objects,player,actives,hay,paper)
+function ball:checkColision(objects,player,actives,hay,paper,powerups,powerupType)
 	if self.stop == false then
 		if inside(self.ball,player) then
 			self.lastObject = 0
@@ -107,6 +107,28 @@ function ball:checkColision(objects,player,actives,hay,paper)
 						self.direction = 1
 					end
 					self:changeSpeedX()
+				end
+			end
+		end
+		print(#powerups)
+		for i=1, #powerups do
+			if inside(self.ball, powerups[i]) then
+				if powerupType[i] == 1 then
+					self.speedY = 0
+					self.speedX = 4
+					self.direction = 1
+				elseif powerupType[i] == 2 then
+					self.speedY = 0
+					self.speedX = 4
+					self.direction = 2
+				elseif powerupType[i] == 3 then
+					self.speedY = 4
+					self.speedX = 0
+					self.direction = 2
+				elseif powerupType[i] == 4 then
+					self.speedY = 4
+					self.speedX = 0
+					self.direction = 4
 				end
 			end
 		end
@@ -155,6 +177,7 @@ end
 function ball:changeSpeedX()
 	local x = math.random(1,4)
 	self.speedX = x
+	self.speedY = 2
 end
 
 function inside(obj1, obj2)
